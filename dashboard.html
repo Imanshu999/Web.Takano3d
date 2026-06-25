@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Takano3D — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg-deep: #120b24;
+  --bg-surface: #1a0f36;
+  --bg-elevated: #231548;
+  --glass-bg: rgba(26, 15, 54, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f0ecf9;
+  --text-secondary: #a89cc8;
+  --text-muted: #6b5f8a;
+  --accent: #ff4500;
+  --accent-end: #ff8c00;
+  --accent-glow: rgba(255, 69, 0, 0.2);
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Background Gradients */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: 
+    radial-gradient(circle at 50% -20%, rgba(255, 69, 0, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-surface) 100%);
+}
+
+/* Navbar */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.logo i {
+  color: var(--accent);
+}
+
+.logout-btn {
+  background: rgba(255, 77, 106, 0.1);
+  border: 1px solid rgba(255, 77, 106, 0.2);
+  color: #ff4d6a;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #ff4d6a;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Main Container */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 0 20px;
+  flex: 1;
+}
+
+.welcome-box {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(30px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 60px var(--accent-glow);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.welcome-box h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.welcome-box p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Project Grid Placeholders */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  background: var(--bg-elevated);
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-end));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.card-icon i {
+  color: white;
+  font-size: 18px;
+}
+
+.card h3 {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.card p {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 15px 20px; }
+  .welcome-box { padding: 30px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- Navbar -->
+<nav>
+  <div class="logo">
+    <i class="fas fa-cube"></i>
+    <span>Takano3D</span>
+  </div>
+  <button class="logout-btn" onclick="logout()">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
+</nav>
+
+<!-- Dashboard Content -->
+<div class="container">
+  <div class="welcome-box">
+    <h2>Welcome to Takano3D Portal 🎉</h2>
+    <p id="userEmail">Loading secure session...</p>
+  </div>
+
+  <!-- Cards / Features Demo -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-code"></i></div>
+      <h3>Project Workspace</h3>
+      <p>Access your files, web apps, and connected developer environments directly from your profile hub.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+      <h3>Security Center</h3>
+      <p>Manage active tokens, authorized domains, and observe secure configuration endpoints.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+      <h3>3D Architecture</h3>
+      <p>Initialize and render interactive WebGL workspaces powered by premium UI/UX engines.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK Logic to secure the dashboard -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBNJ9WTZc-96w3SsMBgMdKRfX9C-N4_oj4",
+  authDomain: "optical-wall-434100-g5.firebaseapp.com",
+  projectId: "optical-wall-434100-g5",
+  storageBucket: "optical-wall-434100-g5.firebasestorage.app",
+  messagingSenderId: "36347733113",
+  appId: "1:36347733113:web:db27c00c7b0de2f6fee0a8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Check if user is logged in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('userEmail').textContent = `Logged in as: ${user.email}`;
+  } else {
+    // If not logged in, boot back to main login page
+    window.location.href = "index.html"; 
+  }
+});
+
+// Logout function
+window.logout = function() {
+  signOut(auth).then(() => {
+    window.location.href = "index.html";
+  }).catch((err) => {
+    alert("Error logging out: " + err.message);
+  });
+}
+</script>
+
+</body>
+</html>
