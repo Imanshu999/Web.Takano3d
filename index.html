@@ -957,26 +957,21 @@ body {
 </head>
 <body>
 
-<!-- Animated Background -->
 <div class="auth-bg"></div>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
 
-<!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Firebase Connection Status -->
 <div class="fb-status" id="fbStatus">
   <div class="fb-dot" id="fbDot"></div>
   <span id="fbStatusText">Initializing Firebase...</span>
 </div>
 
-<!-- Main Auth Wrapper -->
 <div class="auth-wrapper">
   <div class="auth-card">
 
-    <!-- Brand -->
     <div class="auth-brand">
       <div class="auth-logo">
         <i class="fas fa-cube"></i>
@@ -985,14 +980,12 @@ body {
       <p>Developer Ecosystem & Project Hub</p>
     </div>
 
-    <!-- Tab Switcher -->
     <div class="auth-tabs">
       <button class="auth-tab active" data-tab="signin" onclick="switchTab('signin')">Sign In</button>
       <button class="auth-tab" data-tab="signup" onclick="switchTab('signup')">Create Account</button>
       <div class="auth-tab-slider" id="tabSlider"></div>
     </div>
 
-    <!-- SIGN IN PANEL -->
     <div class="auth-panel active" id="signinPanel">
       <form id="signinForm" onsubmit="handleSignIn(event)" novalidate>
         
@@ -1077,7 +1070,6 @@ body {
       </div>
     </div>
 
-    <!-- SIGN UP PANEL -->
     <div class="auth-panel" id="signupPanel">
       <form id="signupForm" onsubmit="handleSignUp(event)" novalidate>
         
@@ -1274,7 +1266,6 @@ body {
   </div>
 </div>
 
-<!-- FIREBASE SDK — MODULE SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import {
@@ -1291,9 +1282,9 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-// Firebase Configuration (Corrected Case-Sensitive API Key with small 'f')
+// Firebase Configuration (Corrected Case-Sensitive API Key)
 const firebaseConfig = {
-  apiKey: "AIzaSyBNJ9WTZc-96w3SsMBgMdKRfX9C-N4_oj4", 
+  apiKey: "AIzaSyBNJ9WTZc-96w3SsMBgMdKRfX9C-N4_oj4", // Fixed TypeO: Small 'f' applied
   authDomain: "optical-wall-434100-g5.firebaseapp.com",
   projectId: "optical-wall-434100-g5",
   storageBucket: "optical-wall-434100-g5.firebasestorage.app",
@@ -1333,7 +1324,7 @@ if (firebaseReady) {
   });
 }
 
-// SIGN IN HANDLER (With Successful Redirect Logic Fixed)
+// SIGN IN HANDLER
 window.handleSignIn = async function(e) {
   e.preventDefault();
   clearAllErrors('signinForm');
@@ -1362,19 +1353,8 @@ window.handleSignIn = async function(e) {
     if (user.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
       console.log('%c⚡ ADMIN ACCESS GRANTED ⚡', 'color: #ff4500; font-size: 16px; font-weight: bold; background: #1a0f36; padding: 8px 16px; border-radius: 4px;');
       showToast('success', 'Admin Access Granted', 'Welcome, Master Admin.');
-      
-      // 1.5 सेकंड का डिले देकर डैशबोर्ड/अगले पेज पर भेजें
-      setTimeout(() => {
-        window.location.href = "dashboard.html"; 
-      }, 1500);
-
     } else {
       showToast('success', 'Welcome Back!', `Signed in as ${user.email}`);
-      
-      // नॉर्मल यूजर को भी 1.5 सेकंड बाद डैशबोर्ड/अगले पेज पर भेजें
-      setTimeout(() => {
-        window.location.href = "dashboard.html"; 
-      }, 1500);
     }
   } catch (err) {
     handleFirebaseError(err, 'signin');
@@ -1384,7 +1364,7 @@ window.handleSignIn = async function(e) {
   }
 };
 
-// SIGN UP HANDLER (With Post-Registration Redirect Fix)
+// SIGN UP HANDLER
 window.handleSignUp = async function(e) {
   e.preventDefault();
   clearAllErrors('signupForm');
@@ -1448,9 +1428,9 @@ window.handleSignUp = async function(e) {
 
     showToast('success', 'Account Created!', `Welcome to Takano3D, ${firstName}!`);
 
-    // रजिस्ट्रेशन के बाद सीधे अगले पेज पर रिडायरेक्ट
     setTimeout(() => {
-      window.location.href = "dashboard.html";
+      switchTab('signin');
+      document.getElementById('siEmail').value = email;
     }, 2000);
 
   } catch (err) {
@@ -1461,7 +1441,7 @@ window.handleSignUp = async function(e) {
   }
 };
 
-// SOCIAL LOGIN HANDLER (With Redirect Fix)
+// SOCIAL LOGIN HANDLER
 window.socialLogin = async function(provider) {
   if (!firebaseReady) {
     showToast('error', 'Not Connected', 'Firebase is not initialized.');
@@ -1479,10 +1459,18 @@ window.socialLogin = async function(provider) {
 
   let authProvider;
   switch (provider) {
-    case 'google': authProvider = new GoogleAuthProvider(); break;
-    case 'github': authProvider = new GithubAuthProvider(); break;
-    case 'twitter': authProvider = new TwitterAuthProvider(); break;
-    case 'facebook': authProvider = new FacebookAuthProvider(); break;
+    case 'google':
+      authProvider = new GoogleAuthProvider();
+      break;
+    case 'github':
+      authProvider = new GithubAuthProvider();
+      break;
+    case 'twitter':
+      authProvider = new TwitterAuthProvider();
+      break;
+    case 'facebook':
+      authProvider = new FacebookAuthProvider();
+      break;
     default:
       showToast('error', 'Unknown Provider', `${provider} is not supported.`);
       document.querySelectorAll('.btn-social').forEach(b => b.disabled = false);
@@ -1493,12 +1481,6 @@ window.socialLogin = async function(provider) {
     const result = await signInWithPopup(auth, authProvider);
     const user = result.user;
     showToast('success', 'Signed In!', `Welcome, ${user.displayName || user.email}`);
-    
-    // सोशल लॉगिन के बाद रिडायरेक्ट
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 1500);
-
   } catch (err) {
     if (err.code === 'auth/popup-closed-by-user') {
       showToast('info', 'Cancelled', 'Sign-in popup was closed.');
@@ -1575,7 +1557,6 @@ window.setError = setError;
 window.clearAllErrors = clearAllErrors;
 </script>
 
-<!-- NON-MODULE UTILITIES -->
 <script>
 function switchTab(tab) {
   const tabs = document.querySelectorAll('.auth-tab');
