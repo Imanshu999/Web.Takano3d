@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Takano3D — User Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg-deep: #120b24;
+    --bg-surface: #1a0f36;
+    --glass-bg: rgba(26, 15, 54, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f0ecf9;
+    --text-secondary: #a89cc8;
+    --accent: #ff4500;
+    --success: #00d68f;
+    --error: #ff4d6a;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 20px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  .upload-box {
+    border: 2px dashed var(--glass-border);
+    padding: 30px;
+    text-align: center;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    margin-bottom: 30px;
+    cursor: pointer;
+  }
+  .upload-box:hover { border-color: var(--accent); }
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .file-list {
+    display: grid;
+    gap: 15px;
+  }
+  .file-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-delete { background: rgba(255, 77, 106, 0.1); color: var(--error); border: 1px solid var(--error); padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+  .btn-delete:hover { background: var(--error); color: white; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div>
+      <h2>Takano3D — User Dashboard</h2>
+      <p id="userEmail" style="color: var(--text-secondary); margin: 4px 0 0 0; font-size: 0.9rem;"></p>
+    </div>
+    <button class="btn" id="btnLogout" style="background: var(--error);">Logout</button>
+  </div>
+
+  <div style="margin-bottom: 30px; padding: 15px; background: rgba(255,255,255,0.01); border: 1px solid var(--glass-border); border-radius: 8px;">
+    <h3>Your Profile</h3>
+    <p style="font-size: 0.85rem; color: var(--text-secondary);">You can edit your account username here.</p>
+    <input type="text" id="usernameInput" placeholder="Enter Username" style="background: var(--bg-deep); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 6px; width: 200px;">
+    <button class="btn" id="btnSaveProfile" style="padding: 8px 15px; font-size: 0.85rem; margin-left: 10px;">Save Profile</button>
+  </div>
+
+  <h3>Upload Any Asset (APK, ZIP, TXT, IMG, etc.)</h3>
+  <div class="upload-box">
+    <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+    <input type="file" id="fileChooser" style="display: none;">
+    <p onclick="document.getElementById('fileChooser').click()">Click here to select a file to upload</p>
+    <p id="selectedFileName" style="color: var(--success); font-weight: 600; font-size: 0.85rem; margin-top: 5px;"></p>
+    <button class="btn" id="btnUpload" style="margin-top: 10px; display: none;">Start Upload</button>
+  </div>
+
+  <h3>Your Uploaded Vault</h3>
+  <div class="file-list" id="myFileList">
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+// Same Config Used in Ecosystem
+const firebaseConfig = {
+  apiKey: "AIzaSyBNJ9WTZc-96w3SsMBgMdKRfX9C-N4_oj4",
+  authDomain: "optical-wall-434100-g5.firebaseapp.com",
+  projectId: "optical-wall-434100-g5",
+  databaseURL: "https://optical-wall-434100-g5-default-rtdb.firebaseio.com", // Make sure Realtime DB is linked
+  storageBucket: "optical-wall-434100-g5.firebasestorage.app",
+  messagingSenderId: "36347733113",
+  appId: "1:36347733113:web:db27c00c7b0de2f6fee0a8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentUserId = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUserId = user.uid;
+    document.getElementById('userEmail').textContent = `Active Session: ${user.email}`;
+    loadUserProfile();
+    loadUserFiles();
+  } else {
+    window.location.href = "index.html";
+  }
+});
+
+// Save Profile
+document.getElementById('btnSaveProfile').addEventListener('click', () => {
+  const name = document.getElementById('usernameInput').value;
+  if(name.trim() !== "") {
+    set(ref(db, `users/${currentUserId}/profile`), { username: name })
+    alert("Profile Updated!");
+  }
+});
+
+function loadUserProfile() {
+  onValue(ref(db, `users/${currentUserId}/profile`), (snapshot) => {
+    if(snapshot.exists()) {
+      document.getElementById('usernameInput').value = snapshot.val().username || '';
+    }
+  });
+}
+
+// Simulated File Uploading into Realtime DB (Stores File info Metadata)
+const fileChooser = document.getElementById('fileChooser');
+fileChooser.addEventListener('change', (e) => {
+  if(e.target.files.length > 0) {
+    document.getElementById('selectedFileName').textContent = `Selected: ${e.target.files[0].name}`;
+    document.getElementById('btnUpload').style.display = "inline-block";
+  }
+});
+
+document.getElementById('btnUpload').addEventListener('click', () => {
+  const file = fileChooser.files[0];
+  if(file) {
+    const fileRef = push(ref(db, `users/${currentUserId}/files`));
+    set(fileRef, {
+      fileName: file.name,
+      fileSize: (file.size / 1024 / 1024).toFixed(2) + " MB",
+      uploadDate: new Date().toLocaleDateString()
+    }).then(() => {
+      alert("File uploaded successfully into Ecosystem!");
+      document.getElementById('btnUpload').style.display = "none";
+      document.getElementById('selectedFileName').textContent = "";
+    });
+  }
+});
+
+// Load Only This Specific User's Files
+function loadUserFiles() {
+  onValue(ref(db, `users/${currentUserId}/files`), (snapshot) => {
+    const list = document.getElementById('myFileList');
+    list.innerHTML = "";
+    if(snapshot.exists()) {
+      snapshot.forEach((child) => {
+        const fileData = child.val();
+        list.innerHTML += `
+          <div class="file-card">
+            <div>
+              <strong style="color: #fff;">${fileData.fileName}</strong><br>
+              <small style="color: var(--text-secondary);">${fileData.fileSize} | ${fileData.uploadDate}</small>
+            </div>
+            <button class="btn-delete" onclick="deleteMyFile('${child.key}')"><i class="fas fa-trash"></i> Delete</button>
+          </div>
+        `;
+      });
+    } else {
+      list.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No assets uploaded yet.</p>`;
+    }
+  });
+}
+
+window.deleteMyFile = function(fileId) {
+  if(confirm("Are you sure you want to delete your asset?")) {
+    remove(ref(db, `users/${currentUserId}/files/${fileId}`));
+  }
+}
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+  signOut(auth).then(() => window.location.href = "index.html");
+});
+</script>
+</body>
+</html>
