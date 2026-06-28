@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Takano3D — Auth Portal</title>
+<title>Takano3D — Admin Dashboard Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -268,7 +268,7 @@ body {
         <i class="fas fa-cube"></i>
       </div>
       <h1>Takano3D</h1>
-      <p>Developer Ecosystem & Project Hub</p>
+      <p>Developer Ecosystem & Dashboard Gateway</p>
     </div>
 
     <div class="gateway-loader">
@@ -323,19 +323,19 @@ onAuthStateChanged(auth, (user) => {
     const isAdmin = ALLOWED_ADMINS.some(email => email.toLowerCase() === user.email.toLowerCase());
 
     if (isAdmin) {
-      // 👑 ADMIN ROUTING
-      gatewayStatus.textContent = "Admin Access Authorized. Routing...";
+      // 👑 ADMIN ROUTING (लूप को रोकने के लिए नया लॉजिक)
+      gatewayStatus.textContent = "Admin Verified. Access Granted.";
       gatewayStatus.style.color = "#00d68f";
-      showToast('success', 'Admin Verification Passed', 'Initializing Secure Dashboard Module.');
+      gatewaySpinner.style.display = "none"; // स्पिनर रोक दो क्योंकि हम इसी पेज पर रुक रहे हैं
+      showToast('success', 'Welcome Back Creator', 'Secure Admin session is now active.');
       
-      setTimeout(() => {
-        window.location.href = "dashboard.html"; // Admin Dashboard Path
-      }, 1500);
+      // नोट: यहाँ window.location.href दोबारा नहीं करेंगे, क्योंकि यह खुद dashboard.html है।
+      // अगर आप यहाँ कोई डैशबोर्ड का UI दिखाना चाहते हैं, तो उसका फंक्शन यहाँ कॉल कर सकते हैं।
 
     } else {
-      // 👤 REGULAR GMAIL USER ROUTING
+      // 👤 REGULAR GMAIL USER ROUTING (अगर नॉर्मल यूजर है तो सीधे main.html पर भेज दो)
       gatewayStatus.textContent = "User Session Authorized. Routing...";
-      gatewayStatus.style.color = "#38bdf8"; // Soft blue status for standard users
+      gatewayStatus.style.color = "#38bdf8"; 
       showToast('info', 'Login Successful', `Welcome to Takano3D, ${user.displayName || 'User'}!`);
       
       setTimeout(() => {
@@ -348,7 +348,11 @@ onAuthStateChanged(auth, (user) => {
     gatewayStatus.textContent = "Authentication Required.";
     gatewayStatus.style.color = "#ff8c00";
     gatewaySpinner.style.display = "none";
-    showToast('info', 'Gateway Offline', 'No active login tokens detected. Redirecting to core portal.');
+    showToast('error', 'Access Denied', 'Please login through the main portal.');
+    
+    setTimeout(() => {
+       window.location.href = "index.html"; // लॉगिन नहीं है तो वापस मुख्य लॉगिन पेज पर भेजें
+    }, 2000);
   }
 });
 
