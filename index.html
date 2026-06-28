@@ -987,7 +987,6 @@ body {
     </div>
 
     <div class="auth-panel active" id="signinPanel">
-      <!-- REMOVED onsubmit="..." attribute -->
       <form id="signinForm" novalidate>
         
         <div class="form-group">
@@ -1072,7 +1071,6 @@ body {
     </div>
 
     <div class="auth-panel" id="signupPanel">
-      <!-- REMOVED onsubmit="..." attribute -->
       <form id="signupForm" novalidate>
         
         <div class="form-row">
@@ -1355,8 +1353,19 @@ window.handleSignIn = async function(e) {
     if (user.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
       console.log('%c⚡ ADMIN ACCESS GRANTED ⚡', 'color: #ff4500; font-size: 16px; font-weight: bold; background: #1a0f36; padding: 8px 16px; border-radius: 4px;');
       showToast('success', 'Admin Access Granted', 'Welcome, Master Admin.');
+      
+      // 🚀 एडमिन पेज पर भेजें (1.5 सेकंड बाद)
+      setTimeout(() => {
+        window.location.href = "admin.html"; 
+      }, 1500);
+
     } else {
       showToast('success', 'Welcome Back!', `Signed in as ${user.email}`);
+      
+      // 🚀 नॉर्मल यूजर को अगले पेज पर भेजें (1.5 सेकंड बाद)
+      setTimeout(() => {
+        window.location.href = "dashboard.html"; 
+      }, 1500);
     }
   } catch (err) {
     handleFirebaseError(err, 'signin');
@@ -1483,6 +1492,12 @@ window.socialLogin = async function(provider) {
     const result = await signInWithPopup(auth, authProvider);
     const user = result.user;
     showToast('success', 'Signed In!', `Welcome, ${user.displayName || user.email}`);
+    
+    // सोशल लॉगिन रीडायरेक्ट लॉजिक
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1500);
+
   } catch (err) {
     if (err.code === 'auth/popup-closed-by-user') {
       showToast('info', 'Cancelled', 'Sign-in popup was closed.');
@@ -1548,14 +1563,12 @@ function updateFbStatus(connected, text) {
   label.textContent = text;
 }
 
-// ── FIXED: Event Listeners Attached Directly in Module Scope ──
-document.addEventListener('DOMContentLoaded', () => {
-  const sInForm = document.getElementById('signinForm');
-  const sUpForm = document.getElementById('signupForm');
+// ── FIXED: सीधे मॉड्यूल स्कोप में इवेंट लिसनर्स अटैच किए ताकि कोई स्कोप एरर न आए ──
+const sInForm = document.getElementById('signinForm');
+const sUpForm = document.getElementById('signupForm');
 
-  if (sInForm) sInForm.addEventListener('submit', window.handleSignIn);
-  if (sUpForm) sUpForm.addEventListener('submit', window.handleSignUp);
-});
+if (sInForm) sInForm.addEventListener('submit', window.handleSignIn);
+if (sUpForm) sUpForm.addEventListener('submit', window.handleSignUp);
 
 window.switchTab = switchTab;
 window.togglePw = togglePw;
@@ -1569,6 +1582,7 @@ window.clearAllErrors = clearAllErrors;
 </script>
 
 <script>
+// बाकी ग्लोबल यूटिलिटी फंक्शन्स
 function switchTab(tab) {
   const tabs = document.querySelectorAll('.auth-tab');
   const panels = document.querySelectorAll('.auth-panel');
