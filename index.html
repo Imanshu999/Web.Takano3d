@@ -987,7 +987,8 @@ body {
     </div>
 
     <div class="auth-panel active" id="signinPanel">
-      <form id="signinForm" onsubmit="handleSignIn(event)" novalidate>
+      <!-- REMOVED onsubmit="..." attribute -->
+      <form id="signinForm" novalidate>
         
         <div class="form-group">
           <label for="siEmail">Email Address</label>
@@ -1071,7 +1072,8 @@ body {
     </div>
 
     <div class="auth-panel" id="signupPanel">
-      <form id="signupForm" onsubmit="handleSignUp(event)" novalidate>
+      <!-- REMOVED onsubmit="..." attribute -->
+      <form id="signupForm" novalidate>
         
         <div class="form-row">
           <div class="form-group">
@@ -1282,9 +1284,9 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-// Firebase Configuration (Corrected Case-Sensitive API Key)
+// Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBNJ9WTZc-96w3SsMBgMdKRfX9C-N4_oj4", // Fixed TypeO: Small 'f' applied
+  apiKey: "AIzaSyBNJ9WTZc-96w3SsMBgMdKRfX9C-N4_oj4", 
   authDomain: "optical-wall-434100-g5.firebaseapp.com",
   projectId: "optical-wall-434100-g5",
   storageBucket: "optical-wall-434100-g5.firebasestorage.app",
@@ -1545,6 +1547,15 @@ function updateFbStatus(connected, text) {
   else dot.classList.remove('connected');
   label.textContent = text;
 }
+
+// ── FIXED: Event Listeners Attached Directly in Module Scope ──
+document.addEventListener('DOMContentLoaded', () => {
+  const sInForm = document.getElementById('signinForm');
+  const sUpForm = document.getElementById('signupForm');
+
+  if (sInForm) sInForm.addEventListener('submit', window.handleSignIn);
+  if (sUpForm) sUpForm.addEventListener('submit', window.handleSignUp);
+});
 
 window.switchTab = switchTab;
 window.togglePw = togglePw;
