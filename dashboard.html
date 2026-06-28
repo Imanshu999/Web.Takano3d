@@ -308,43 +308,49 @@ const gatewaySpinner = document.getElementById('gatewaySpinner');
 dot.classList.add('connected');
 fbLabel.textContent = "Firebase Connected";
 
-// ADMIN CREDENTIAL VERIFICATION RULE
-const MASTER_ADMIN_EMAIL = "dome74677@gmail.com";
+// 🛡️ ALLOWED ADMIN EMAILS (Both developer accounts authorized)
+const ALLOWED_ADMINS = [
+  "dome74677@gmail.com",
+  "n4062226@gmail.com"
+];
 
 // AUTH SESSION DETECTOR
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log('[Auth Gateway] Session identified:', user.email);
     
-    if (user.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
-      gatewayStatus.textContent = "Access Authorized. Routing...";
+    // Check if the logged-in email is in the admin whitelist
+    const isAdmin = ALLOWED_ADMINS.some(email => email.toLowerCase() === user.email.toLowerCase());
+
+    if (isAdmin) {
+      // 👑 ADMIN ROUTING
+      gatewayStatus.textContent = "Admin Access Authorized. Routing...";
       gatewayStatus.style.color = "#00d68f";
-      showToast('success', 'Admin Verification Passed', 'Initializing Secure Module Pipeline.');
+      showToast('success', 'Admin Verification Passed', 'Initializing Secure Dashboard Module.');
       
       setTimeout(() => {
-        handleAdminRouting();
+        window.location.href = "dashboard.html"; // Admin Dashboard Path
       }, 1500);
+
     } else {
-      gatewayStatus.textContent = "Access Denied: Restricted Node.";
-      gatewayStatus.style.color = "#ff4d6a";
-      gatewaySpinner.style.display = "none";
-      showToast('error', 'Authorization Failed', 'This account does not have developer privileges.');
+      // 👤 REGULAR GMAIL USER ROUTING
+      gatewayStatus.textContent = "User Session Authorized. Routing...";
+      gatewayStatus.style.color = "#38bdf8"; // Soft blue status for standard users
+      showToast('info', 'Login Successful', `Welcome to Takano3D, ${user.displayName || 'User'}!`);
+      
+      setTimeout(() => {
+        window.location.href = "main.html"; // Regular user redirection page
+      }, 1500);
     }
+
   } else {
     console.log('[Auth Gateway] No active session found.');
     gatewayStatus.textContent = "Authentication Required.";
     gatewayStatus.style.color = "#ff8c00";
     gatewaySpinner.style.display = "none";
-    showToast('info', 'Gateway Offline', 'No active login tokens detected. Please authenticate first.');
+    showToast('info', 'Gateway Offline', 'No active login tokens detected. Redirecting to core portal.');
   }
 });
-
-function handleAdminRouting() {
-  console.log('%c⚡ ADMIN ACCESS GRANTED ⚡', 'color: #ff4500; font-size: 16px; font-weight: bold; background: #1a0f36; padding: 8px 16px; border-radius: 4px;');
-  
-  // यहाँ आप अपने डैशबोर्ड या अगले पेज का यूआरएल (URL) डाल सकते हैं
-  window.location.href = "dashboard.html"; 
-}
 
 function showToast(type, title, message, duration = 4500) {
   const container = document.getElementById('toastContainer');
