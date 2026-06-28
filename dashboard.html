@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Takano3D — Admin Dashboard Portal</title>
+<title>Takano3D — Auth Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -308,7 +308,7 @@ const gatewaySpinner = document.getElementById('gatewaySpinner');
 dot.classList.add('connected');
 fbLabel.textContent = "Firebase Connected";
 
-// 🛡️ ALLOWED ADMIN EMAILS (Both developer accounts authorized)
+// 🛡️ ALLOWED ADMIN EMAILS
 const ALLOWED_ADMINS = [
   "dome74677@gmail.com",
   "n4062226@gmail.com"
@@ -323,23 +323,23 @@ onAuthStateChanged(auth, (user) => {
     const isAdmin = ALLOWED_ADMINS.some(email => email.toLowerCase() === user.email.toLowerCase());
 
     if (isAdmin) {
-      // 👑 ADMIN ROUTING (लूप को रोकने के लिए नया लॉजिक)
-      gatewayStatus.textContent = "Admin Verified. Access Granted.";
+      // 👑 ADMIN ROUTING -> Sends directly to admin.html
+      gatewayStatus.textContent = "Admin Verified. Opening Master Console...";
       gatewayStatus.style.color = "#00d68f";
-      gatewaySpinner.style.display = "none"; // स्पिनर रोक दो क्योंकि हम इसी पेज पर रुक रहे हैं
-      showToast('success', 'Welcome Back Creator', 'Secure Admin session is now active.');
+      showToast('success', 'Welcome Back Creator', 'Loading root administration panel.');
       
-      // नोट: यहाँ window.location.href दोबारा नहीं करेंगे, क्योंकि यह खुद dashboard.html है।
-      // अगर आप यहाँ कोई डैशबोर्ड का UI दिखाना चाहते हैं, तो उसका फंक्शन यहाँ कॉल कर सकते हैं।
+      setTimeout(() => {
+        window.location.href = "admin.html"; // Open Admin View File
+      }, 1500);
 
     } else {
-      // 👤 REGULAR GMAIL USER ROUTING (अगर नॉर्मल यूजर है तो सीधे main.html पर भेज दो)
+      // 👤 REGULAR GMAIL USER ROUTING -> Sends to main.html
       gatewayStatus.textContent = "User Session Authorized. Routing...";
       gatewayStatus.style.color = "#38bdf8"; 
       showToast('info', 'Login Successful', `Welcome to Takano3D, ${user.displayName || 'User'}!`);
       
       setTimeout(() => {
-        window.location.href = "main.html"; // Regular user redirection page
+        window.location.href = "main.html"; // Open User View File
       }, 1500);
     }
 
@@ -351,7 +351,7 @@ onAuthStateChanged(auth, (user) => {
     showToast('error', 'Access Denied', 'Please login through the main portal.');
     
     setTimeout(() => {
-       window.location.href = "index.html"; // लॉगिन नहीं है तो वापस मुख्य लॉगिन पेज पर भेजें
+       window.location.href = "index.html"; // No user found -> Back to core portal
     }, 2000);
   }
 });
